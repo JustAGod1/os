@@ -1,0 +1,18 @@
+hello:
+	@echo Hello!
+CC = i686-elf-gcc
+
+bootstrap.o: bootstrap.asm
+	nasm -felf -obootstrap.o bootstrap.asm
+kernel.out: bootstrap.o kernel.o
+	i686-elf-ld -T linker.ld -o kernel.out bootstrap.o kernel.o
+kernel.bin: kernel.out
+	objcopy -O binary --only-section=.text kernel.out kernel.bin
+
+kernel: kernel.bin
+qemu: kernel
+	qemu-system-x86_64 kernel.bin
+.PHONY: kernel qemu
+
+
+
