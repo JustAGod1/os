@@ -3,18 +3,20 @@ extern kmain
 
 ; code start
 
+cld
+
+mov bx, 0x0
 xor bx, bx
 mov ds, bx
 mov ss, bx
 mov es, bx
-;mov bx, 0x500
 mov sp, bx
 
 mov si, HELLO_MSG
 call print
 call read_tail
 call enter_graphic_mode
-
+call draw_line
 call enter_pmode
 
 
@@ -41,13 +43,14 @@ draw_line:
   mov bx, 0xA000
   mov es, bx
   mov bx, 30
-  mov dl, 4
+  mov dl, 0xFF
 
   line_loop:
     mov [es:bx], dl
     dec bx
     and bx, bx
     jne line_loop
+  mov [es:bx], dl
 
   popa
   ret
@@ -55,7 +58,7 @@ draw_line:
 enter_graphic_mode:
   pusha
   mov ah, 0x0
-  mov al, 0x13
+  mov al, 0x12
   int 0x10
   popa
   ret
@@ -87,9 +90,15 @@ disk_error:
 enter_pmode:
   cli
   lgdt [gdtr]
+  mov bx, 0x8
+  mov ss, bx
+  xor esp, esp
+  xor ebp, ebp
+
   mov eax, cr0
   or eax, 1
   mov cr0, eax
+
 
   jmp 0x10:kmain
 

@@ -1,11 +1,13 @@
 hello:
 	@echo Hello!
-CC = i686-elf-gcc
+CC = $${HOME}/opt/cross/bin/i686-elf-gcc
 
 bootstrap.o: bootstrap.asm
 	nasm -felf -obootstrap.o bootstrap.asm
-kernel.out: bootstrap.o kernel.o
-	i686-elf-ld -T linker.ld -o kernel.out bootstrap.o kernel.o
+kernel_helper.o: kernel_helper.asm
+	nasm -felf -okernel_helper.o kernel_helper.asm
+kernel.out: bootstrap.o kernel.o linker.ld kernel_helper.o
+	$${HOME}/opt/cross/bin/i686-elf-ld -T linker.ld -o kernel.out bootstrap.o kernel.o kernel_helper.o
 kernel.bin: kernel.out
 	objcopy -O binary --only-section=.text kernel.out kernel.bin
 
